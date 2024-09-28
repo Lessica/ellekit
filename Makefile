@@ -19,13 +19,22 @@ endif
 ifneq ($(MAC),)
 COMMON_OPTIONS += -destination 'generic/platform=macOS'
 else
+ifneq ($(SIMULATOR),)
+COMMON_OPTIONS += -destination 'generic/platform=iOS Simulator'
+COMMON_OPTIONS += -xcconfig SimulatorOverrides.xcconfig
+else
 COMMON_OPTIONS += -destination 'generic/platform=iOS'
+endif
 endif
 
 ifneq ($(MAC),)
 PRODUCTS_DIR = build/$(CONFIGURATION)
 else
+ifneq ($(SIMULATOR),)
+PRODUCTS_DIR = build/$(CONFIGURATION)-iphonesimulator
+else
 PRODUCTS_DIR = build/$(CONFIGURATION)-iphoneos
+endif
 endif
 
 STAGE_DIR = work-$(ARCHITECTURE)/stage
@@ -36,23 +45,23 @@ INSTALL_ROOT = $(STAGE_DIR)/$(INSTALL_PREFIX)
 all: deb
 
 clean:
-	xcodebuild -scheme ellekit $(COMMON_OPTIONS) clean
-	xcodebuild -scheme injector $(COMMON_OPTIONS) clean
-	xcodebuild -scheme launchd $(COMMON_OPTIONS) clean
-	xcodebuild -scheme loader $(COMMON_OPTIONS) clean
-	xcodebuild -scheme safemode-ui $(COMMON_OPTIONS) clean
+	xcodebuild -scheme ellekit $(COMMON_OPTIONS) clean | xcpretty
+	xcodebuild -scheme injector $(COMMON_OPTIONS) clean | xcpretty
+	xcodebuild -scheme launchd $(COMMON_OPTIONS) clean | xcpretty
+	xcodebuild -scheme loader $(COMMON_OPTIONS) clean | xcpretty
+	xcodebuild -scheme safemode-ui $(COMMON_OPTIONS) clean | xcpretty
 
 build-ios:
-	xcodebuild -scheme ellekit $(COMMON_OPTIONS)
-	xcodebuild -scheme injector $(COMMON_OPTIONS)
-	xcodebuild -scheme launchd $(COMMON_OPTIONS)
-	xcodebuild -scheme loader $(COMMON_OPTIONS)
-	xcodebuild -scheme safemode-ui $(COMMON_OPTIONS)
+	xcodebuild -scheme ellekit $(COMMON_OPTIONS) | xcpretty
+	xcodebuild -scheme injector $(COMMON_OPTIONS) | xcpretty
+	xcodebuild -scheme launchd $(COMMON_OPTIONS) | xcpretty
+	xcodebuild -scheme loader $(COMMON_OPTIONS) | xcpretty
+	xcodebuild -scheme safemode-ui $(COMMON_OPTIONS) | xcpretty
 
 build-macos:
-	xcodebuild -scheme ellekit $(COMMON_OPTIONS)
-	xcodebuild -scheme launchd $(COMMON_OPTIONS)
-	xcodebuild -scheme loader $(COMMON_OPTIONS)
+	xcodebuild -scheme ellekit $(COMMON_OPTIONS) | xcpretty
+	xcodebuild -scheme launchd $(COMMON_OPTIONS) | xcpretty
+	xcodebuild -scheme loader $(COMMON_OPTIONS) | xcpretty
 
 deb-ios-rootful: ARCHITECTURE = iphoneos-arm
 deb-ios-rootful: INSTALL_PREFIX = 
